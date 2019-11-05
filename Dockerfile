@@ -1,7 +1,7 @@
-FROM alpine:3.8 as builder
+FROM alpine:20190925 as builder
 
-ENV OSM2PGSQL_VERSION=0.96.0
-ENV OSM2PGSQL_MD5SUM=c6abde50a99fd5eb1342532fd6e78306
+ENV OSM2PGSQL_VERSION=1.2.0
+ENV OSM2PGSQL_MD5SUM=e0aeb95d6d359a10c1d45d07e346a038
 
 RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
     apk add --update \
@@ -16,8 +16,8 @@ RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/ap
             zlib-dev \
             bzip2-dev \
             lua5.1-dev \
-            proj4-dev@testing \
-            py2-psycopg2
+            proj-dev@testing \
+            py3-psycopg2
 
 RUN wget -O osm2pgsql-$OSM2PGSQL_VERSION.tar.gz https://github.com/openstreetmap/osm2pgsql/archive/$OSM2PGSQL_VERSION.tar.gz && \
     echo "$OSM2PGSQL_MD5SUM  osm2pgsql-$OSM2PGSQL_VERSION.tar.gz" | md5sum -c && \
@@ -46,10 +46,10 @@ RUN mkdir -p /run/postgresql && \
 RUN cd /build && make install
 
 
-FROM alpine:3.8
+FROM alpine:20190925
 
 RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
-    apk add --update --no-cache boost expat postgresql-libs zlib libbz2 lua5.1 proj4@testing && \
+    apk add --update --no-cache boost expat postgresql-libs zlib libbz2 lua5.1 proj-dev@testing && \
     adduser -D osm
 
 COPY --from=builder /usr/local/bin/osm2pgsql /usr/local/bin/osm2pgsql
